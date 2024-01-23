@@ -32,17 +32,65 @@ class RequestHandler implements Runnable {
             String request = in.readLine();
             System.out.println("Request: " + request);
     
-            // Read content from the index.html file
-            String filePath = "../default/index.html";
-            File file = new File(filePath);
-            String content = readFile(file);
+            // Determine the requested resource
+            String requestedResource = request.split(" ")[1]; // Assuming the request is in format "GET /resource HTTP/1.1"
     
-            // Send the HTTP response
-            String response = "HTTP/1.1 200 OK\r\n" +
-                              "Content-Type: text/html\r\n" +
-                              "Content-Length: " + content.length() + "\r\n\r\n" +
-                              content;
-            out.write(response.getBytes());
+            String response = "No response";
+
+            // Handle request for the HTML file
+            if (requestedResource.equals("/") || requestedResource.equals("/index.html")) {
+                // Adjusted path for 'default' folder
+                String filePath = "../default/index.html";
+                File file = new File(filePath);
+                String content = readFile(file);
+                response = "HTTP/1.1 200 OK\r\n" +
+                                  "Content-Type: text/html\r\n" +
+                                  "Content-Length: " + content.length() + "\r\n\r\n";
+                                  
+                System.out.println(response);
+                response += content;
+                out.write(response.getBytes());
+            }
+            // Handle request for images
+            else if (requestedResource.matches(".*\\.(jpg|png|gif|bmp)")) {
+                // Adjusted path for 'default' folder
+                String filePath = "../default" + requestedResource;
+                File file = new File(filePath);
+                if (file.exists() && !file.isDirectory()) {
+                    byte[] content = readFileAsBytes(file);
+                    response = "HTTP/1.1 200 OK\r\n" +
+                                      "Content-Type: " + getContentType(requestedResource) + "\r\n" +
+                                      "Content-Length: " + content.length + "\r\n\r\n";
+                    out.write(response.getBytes());
+                    out.write(content);
+                } else {
+                    // Send 404 Not Found if the image does not exist
+                    response = "HTTP/1.1 404 Not Found\r\n\r\n";
+                    out.write(response.getBytes());
+                }
+
+                System.out.println(response);
+            }
+            else if (requestedResource.equals("/favicon.ico")) {
+                String filePath = "../default/favicon.ico";
+                File file = new File(filePath);
+                if (file.exists() && !file.isDirectory()) {
+                    byte[] content = readFileAsBytes(file);
+                    response = "HTTP/1.1 200 OK\r\n" +
+                                      "Content-Type: icon\r\n" +
+                                      "Content-Length: " + content.length + "\r\n\r\n";
+                    out.write(response.getBytes());
+                    out.write(content);
+                } else {
+                    // Send 404 Not Found if the favicon.ico does not exist
+                    response = "HTTP/1.1 404 Not Found\r\n\r\n";
+                    out.write(response.getBytes());
+                }
+                System.out.println(response);
+            }
+            else{
+                System.out.println(response);
+            }
     
             // Close the connection
             clientSocket.close();
@@ -63,7 +111,29 @@ class RequestHandler implements Runnable {
                 contentBuilder.append(sCurrentLine).append("\n");
             }
         }
-
-        return contentBuilder.toString();
+        return contentBuilder.toString();    }
+    
+    private byte[] readFileAsBytes(File file) throws IOException {
+        // Convert file content to a byte array
+        FileInputStream fis = new FileInputStream(file);
+        byte[] data = new byte[(int) file.length()];
+        fis.read(data);
+        fis.close();
+        return data;
     }
+    
+    private String getContentType(String filename) {
+        if (filename.endsWith(".jpg")) {
+            return "image/jpeg";
+        } else if (filename.endsWith(".png")) {
+            return "image/png";
+        } else if (filename.endsWith(".gif")) {
+            return "image/gif";
+        } else if (filename.endsWith(".bmp")) {
+            return "image/bmp";
+        } else {
+            return "application/octet-stream";
+        }
+    }
+    
 }
