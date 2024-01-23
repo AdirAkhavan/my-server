@@ -26,7 +26,7 @@ public class HTTPRequest {
         // Splitting the header into lines
         String[] lines = requestHeader.split("\r\n");
         for (String line : lines) {
-            if (line.startsWith("GET") || line.startsWith("POST")) {
+            if (line.startsWith("GET") || line.startsWith("POST") || line.startsWith("HEAD") || line.startsWith("TRACE")) {
                 // Extracting the request type and requested page
                 String[] requestLine = line.split(" ");
                 requestType = requestLine[0];

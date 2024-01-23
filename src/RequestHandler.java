@@ -51,6 +51,30 @@ class RequestHandler implements Runnable {
                 response += content;
                 out.write(response.getBytes());
             }
+            // else if (requestedResource.equals("HEAD")) {
+            //     // Handle HEAD request similar to GET, but do not send the body
+            //     // You need to implement the logic to set filePath based on the requested resource
+            //     String filePath = "../default/index.html";
+            //     File file = new File(filePath);
+            //     if (file.exists() && !file.isDirectory()) {
+            //         response = "HTTP/1.1 200 OK\r\n" +
+            //                           "Content-Type: " + getContentType(requestedResource) + "\r\n" +
+            //                           "Content-Length: " + file.length() + "\r\n\r\n";
+            //         out.write(response.getBytes());
+            //     } else {
+            //         // Send 404 Not Found if the file does not exist
+            //         response = "HTTP/1.1 404 Not Found\r\n\r\n";
+            //         out.write(response.getBytes());
+            //     }
+            // }
+            // else if (requestedResource.equals("TRACE")) {
+            //     // Handle TRACE request by echoing back the request
+            //     response = "HTTP/1.1 200 OK\r\n" +
+            //                       "Content-Type: message/http\r\n" +
+            //                       "Content-Length: " + request.length() + "\r\n\r\n" +
+            //                       request;
+            //     out.write(response.getBytes());
+            // }
             // Handle request for images
             else if (requestedResource.matches(".*\\.(jpg|png|gif|bmp)")) {
                 // Adjusted path for 'default' folder
