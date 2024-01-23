@@ -16,7 +16,7 @@ public class HTTPRequest {
     public String agent;
     // Parameters – the parameters in the request (I used java.util.HashMap<String,String> to hold the parameters).
     public HashMap<String, String> parameters = new HashMap<String, String>();
-    // some comment
+    
     public HTTPRequest(String requestHeader) {
         parseRequestHeader(requestHeader);
     }
