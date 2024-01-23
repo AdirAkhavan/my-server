@@ -22,32 +22,6 @@ public class MultiThreadedWebServer {
         } catch (NumberFormatException e) {
             System.err.println("Error parsing port number: [" + portNumberString + "]. Got following error message:" + e.getMessage());
         }
-        
-        // ServerSocket serverSocket = null;
-
-        // try {
-        //     serverSocket = new ServerSocket(portNumber);
-        //     System.out.println("Server is listening on port " + portNumber);
-
-        //     while (true) {
-        //         Socket clientSocket = serverSocket.accept();
-        //         System.out.println("Accepted connection from " + clientSocket.getInetAddress());
-
-        //         // Create a new thread to handle the request
-        //         Thread requestHandler = new Thread(new RequestHandler(clientSocket));
-        //         requestHandler.start();
-        //     }
-        // } catch (IOException e) {
-        //     e.printStackTrace();
-        // } finally {
-        //     try {
-        //         if (serverSocket != null) {
-        //             serverSocket.close();
-        //         }
-        //     } catch (IOException e) {
-        //         e.printStackTrace();
-        //     }
-        // }
 
         String maxThreadsString = configFileProperties.getProperty("maxThreads");
         int maxThreads = 0;
