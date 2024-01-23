@@ -30,7 +30,7 @@ class RequestHandler implements Runnable {
 
             // Send a simple HTTP response
             String response = "HTTP/1.1 200 OK\r\n\r\n" +
-                              "<html><body><h1>Welcome to Matan and Adir's server.</h1></body></html>";
+                              "<html><body><h1>Welcome to Ido and Adir's server.</h1></body></html>";
             out.write(response.getBytes());
 
             // Close the connection
