@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 public class HTTPRequest {
     
@@ -58,5 +59,26 @@ public class HTTPRequest {
                 agent = line.split(": ")[1].trim();
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("HTTPRequest: {");
+        sb.append("requestType='").append(requestType).append('\'');
+        sb.append(", requestedPage='").append(requestedPage).append('\'');
+        sb.append(", isImage=").append(isImage);
+        sb.append(", contentLength=").append(contentLength);
+        sb.append(", referer='").append(referer).append('\'');
+        sb.append(", agent='").append(agent).append('\'');
+        sb.append(", parameters={");
+        if (!parameters.isEmpty()) {
+            for (Entry<String, String> entry : parameters.entrySet()) {
+                sb.append(entry.getKey()).append("=").append(entry.getValue()).append(", ");
+            }
+            sb.setLength(sb.length() - 2); // Remove the last comma and space
+        }
+        sb.append("}}");
+        return sb.toString();
     }
 }

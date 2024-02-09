@@ -32,88 +32,42 @@ class RequestHandler implements Runnable {
             String request = in.readLine();
             System.out.println("Request: " + request);
     
-            // Determine the requested resource
-            String requestedResource = request.split(" ")[1]; // Assuming the request is in format "GET /resource HTTP/1.1"
-    
-            String response = "No response";
-
-            // Handle request for the HTML file
-            if (requestedResource.equals("/") || requestedResource.equals("/index.html")) {
-                // Adjusted path for 'default' folder
-                String filePath = "../default/index.html";
-                File file = new File(filePath);
-                String content = readFile(file);
-                response = "HTTP/1.1 200 OK\r\n" +
-                                  "Content-Type: text/html\r\n" +
-                                  "Content-Length: " + content.length() + "\r\n\r\n";
-                                  
+            HTTPRequest httpRequest = new HTTPRequest(request);
+            System.out.println("---------------------");
+            System.out.println(httpRequest);
+            System.out.println("---------------------");
+            String reqType = httpRequest.requestType;
+            String response = "";
+            
+            if (reqType.equals("GET")) {
+                System.out.println("---------------------");
+                System.out.println("CALLING handleGetRequest");
+                response = handleGetRequest(httpRequest, out);
+                System.out.println("Response:");
                 System.out.println(response);
-                response += content;
-                out.write(response.getBytes());
+                System.out.println("---------------------");
             }
-            // else if (requestedResource.equals("HEAD")) {
-            //     // Handle HEAD request similar to GET, but do not send the body
-            //     // You need to implement the logic to set filePath based on the requested resource
-            //     String filePath = "../default/index.html";
-            //     File file = new File(filePath);
-            //     if (file.exists() && !file.isDirectory()) {
-            //         response = "HTTP/1.1 200 OK\r\n" +
-            //                           "Content-Type: " + getContentType(requestedResource) + "\r\n" +
-            //                           "Content-Length: " + file.length() + "\r\n\r\n";
-            //         out.write(response.getBytes());
-            //     } else {
-            //         // Send 404 Not Found if the file does not exist
-            //         response = "HTTP/1.1 404 Not Found\r\n\r\n";
-            //         out.write(response.getBytes());
-            //     }
-            // }
-            // else if (requestedResource.equals("TRACE")) {
-            //     // Handle TRACE request by echoing back the request
-            //     response = "HTTP/1.1 200 OK\r\n" +
-            //                       "Content-Type: message/http\r\n" +
-            //                       "Content-Length: " + request.length() + "\r\n\r\n" +
-            //                       request;
-            //     out.write(response.getBytes());
-            // }
-            // Handle request for images
-            else if (requestedResource.matches(".*\\.(jpg|png|gif|bmp)")) {
-                // Adjusted path for 'default' folder
-                String filePath = "../default" + requestedResource;
-                File file = new File(filePath);
-                if (file.exists() && !file.isDirectory()) {
-                    byte[] content = readFileAsBytes(file);
-                    response = "HTTP/1.1 200 OK\r\n" +
-                                      "Content-Type: " + getContentType(requestedResource) + "\r\n" +
-                                      "Content-Length: " + content.length + "\r\n\r\n";
-                    out.write(response.getBytes());
-                    out.write(content);
-                } else {
-                    // Send 404 Not Found if the image does not exist
-                    response = "HTTP/1.1 404 Not Found\r\n\r\n";
-                    out.write(response.getBytes());
-                }
-
-                System.out.println(response);
+            else if (reqType.equals("POST")) {
+                // handlePostRequest(httpRequest);
+                System.out.println("---------------------");
+                System.out.println("handlePostRequest");
+                System.out.println("---------------------");
             }
-            else if (requestedResource.equals("/favicon.ico")) {
-                String filePath = "../default/favicon.ico";
-                File file = new File(filePath);
-                if (file.exists() && !file.isDirectory()) {
-                    byte[] content = readFileAsBytes(file);
-                    response = "HTTP/1.1 200 OK\r\n" +
-                                      "Content-Type: icon\r\n" +
-                                      "Content-Length: " + content.length + "\r\n\r\n";
-                    out.write(response.getBytes());
-                    out.write(content);
-                } else {
-                    // Send 404 Not Found if the favicon.ico does not exist
-                    response = "HTTP/1.1 404 Not Found\r\n\r\n";
-                    out.write(response.getBytes());
-                }
+            else if (reqType.equals("HEAD")) {
+                System.out.println("---------------------");
+                System.out.println("CALLING handleHeadRequest");
+                response = handleHeadRequest(httpRequest, out);
+                System.out.println("Response:");
                 System.out.println(response);
+                System.out.println("---------------------");
             }
-            else{
+            else if (reqType.equals("TRACE")) {
+                System.out.println("---------------------");
+                System.out.println("CALLING handleTraceRequest");
+                response = handleTraceRequest(httpRequest, out);
+                System.out.println("Response:");
                 System.out.println(response);
+                System.out.println("---------------------");
             }
     
             // Close the connection
@@ -123,6 +77,110 @@ class RequestHandler implements Runnable {
         }
     }
     
+    private String handleGetRequest(HTTPRequest httpRequest, OutputStream out) throws IOException {
+        // Determine the requested resource
+        String requestedResource = httpRequest.requestedPage;
+        String responseToPrint = "";
+        String response = "No response";
+
+        // Handle request for the HTML file
+        if (requestedResource.equals("/") || requestedResource.equals("/index.html")) {
+            // Adjusted path for 'default' folder
+            String filePath = "../default/index.html";
+            File file = new File(filePath);
+            String content = readFile(file);
+            response = "HTTP/1.1 200 OK\r\n" +
+                              "Content-Type: text/html\r\n" +
+                              "Content-Length: " + content.length() + "\r\n\r\n";
+                              
+            responseToPrint = response;
+            response += content;
+            out.write(response.getBytes());
+        }
+        // Handle request for images
+        else if (requestedResource.matches(".*\\.(jpg|png|gif|bmp)")) {
+            // Adjusted path for 'default' folder
+            String filePath = "../default" + requestedResource;
+            File file = new File(filePath);
+            if (file.exists() && !file.isDirectory()) {
+                byte[] content = readFileAsBytes(file);
+                response = "HTTP/1.1 200 OK\r\n" +
+                                  "Content-Type: " + getContentType(requestedResource) + "\r\n" +
+                                  "Content-Length: " + content.length + "\r\n\r\n";
+                out.write(response.getBytes());
+                out.write(content);
+            } else {
+                // Send 404 Not Found if the image does not exist
+                response = "HTTP/1.1 404 Not Found\r\n\r\n";
+                out.write(response.getBytes());
+            }
+
+            responseToPrint = response;
+        }
+        else if (requestedResource.equals("/favicon.ico")) {
+            String filePath = "../default/favicon.ico";
+            File file = new File(filePath);
+            if (file.exists() && !file.isDirectory()) {
+                byte[] content = readFileAsBytes(file);
+                response = "HTTP/1.1 200 OK\r\n" +
+                                  "Content-Type: icon\r\n" +
+                                  "Content-Length: " + content.length + "\r\n\r\n";
+                out.write(response.getBytes());
+                out.write(content);
+            } else {
+                // Send 404 Not Found if the favicon.ico does not exist
+                response = "HTTP/1.1 404 Not Found\r\n\r\n";
+                out.write(response.getBytes());
+            }
+
+            responseToPrint = response;
+        }
+        
+        return responseToPrint;
+    }
+
+    // TODO: Implement
+    private String handlePostRequest(HTTPRequest httpRequest) throws IOException {
+        return "";
+    }
+
+    // TODO: Implement, current implementation is not good
+    private String handleHeadRequest(HTTPRequest httpRequest, OutputStream out) throws IOException {
+        // Handle HEAD request similar to GET, but do not send the body
+        // You need to implement the logic to set filePath based on the requested resource
+        String requestedResource = httpRequest.requestedPage;
+        
+        String response = "No response";
+
+        // TODO: change filePath
+        String filePath = "../default/index.html";
+        File file = new File(filePath);
+        if (file.exists() && !file.isDirectory()) {
+            response = "HTTP/1.1 200 OK\r\n" +
+                                "Content-Type: " + getContentType(requestedResource) + "\r\n" +
+                                "Content-Length: " + file.length() + "\r\n\r\n";
+            out.write(response.getBytes());
+        } else {
+            // Send 404 Not Found if the file does not exist
+            response = "HTTP/1.1 404 Not Found\r\n\r\n";
+            out.write(response.getBytes());
+        }
+        
+        return response;
+    }
+
+    // TODO: check if current implementation is good enough
+    private String handleTraceRequest(HTTPRequest httpRequest, OutputStream out) throws IOException {
+        // Handle TRACE request by echoing back the request
+        String response = "HTTP/1.1 200 OK\r\n" +
+                            "Content-Type: message/http\r\n" +
+                            "Content-Length: " + httpRequest.contentLength + "\r\n\r\n" +
+                            httpRequest;
+        out.write(response.getBytes());
+
+        return response;
+    }
+
     private String readFile(File file) throws IOException {
         if (!file.exists()) {
             throw new FileNotFoundException("File not found: " + file.getPath());
