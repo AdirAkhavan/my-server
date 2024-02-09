@@ -32,10 +32,12 @@ public class HTTPRequest {
                 String[] requestLine = line.split(" ");
                 requestType = requestLine[0];
                 requestedPage = requestLine[1];
-
+                
+                System.out.println(requestedPage);
                 // Check if the requested page has an image extension
                 isImage = requestedPage.matches(".*\\.(bmp|gif|png|jpg)");
-
+                
+                System.out.println(requestHeader);
                 // Extract parameters if any
                 if (requestedPage.contains("?")) {
                     String paramString = requestedPage.substring(requestedPage.indexOf("?") + 1);
