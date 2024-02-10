@@ -21,7 +21,7 @@ class RequestHandler implements Runnable {
     public void run() {
         try {
             handleRequest();
-        } catch (IOException e) {
+        } catch (Exception e) {
             // e.printStackTrace();
             System.out.println("HTTP/1.1 500 Internal Server Error\r\n\r\n");
         }
@@ -100,11 +100,10 @@ class RequestHandler implements Runnable {
                 System.out.println("Response:");
                 System.out.println(response);
                 System.out.println("---------------------");
-            }else{
+            }
+            else {
                 // not implemented exception
-                response = "HTTP/1.1 501 Not Implemented\r\n\r\n";
-                System.out.println("Response:");
-                System.out.println(response);
+                response = "HTTP/1.1 \r\n\r\n";
                 out.write(response.getBytes());
             }
     

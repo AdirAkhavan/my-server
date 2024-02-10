@@ -31,55 +31,71 @@ public class HTTPRequest {
         // Splitting the header into lines
         String[] lines = requestHeader.split("\r\n");
         boolean isPost = lines[0].startsWith("POST");
+        String firstLine = lines[0];
+        requestType = firstLine.split(" ")[0];
 
-        for (String line : lines) {
-            if (line.startsWith("GET") || line.startsWith("POST") || line.startsWith("HEAD") || line.startsWith("TRACE")) {
-                // Extracting the request type and requested page
-                String[] requestLine = line.split(" ");
-                requestType = requestLine[0];
-                requestedPage = requestLine[1];
-                
-                System.out.println(requestedPage);
-                // Check if the requested page has an image extension
-                isImage = requestedPage.matches(".*\\.(bmp|gif|png|jpg)");
-                
-                System.out.println(requestHeader);
-                //sender=fdsf&receiver=fds&subject=fds&message=fdsf
-
-
-                // Extract parameters if any
-                if (requestedPage.contains("?")) {
-                    String paramString = requestedPage.substring(requestedPage.indexOf("?") + 1);
-                    requestedPage = requestedPage.substring(0, requestedPage.indexOf("?"));
-                    String[] paramPairs = paramString.split("&");
-                    for (String pair : paramPairs) {
-                        String[] kv = pair.split("=");
-                        if (kv.length == 2) {
-                            parameters.put(kv[0], kv[1]);
+        if (requestType.equals("PUT") || requestType.equals("DELETE")
+         || requestType.equals("OPTIONS") || requestType.equals("CONNECT") || requestType.equals("PATCH")){
+            requestedPage = firstLine.split(" ")[1];
+            System.out.println(requestedPage);
+            System.out.println(requestHeader);
+            System.out.println("Response:");
+            System.out.println("HTTP/1.1 501 Not Implemented\r\n\r\n");
+        }
+        else if (!requestType.equals("GET") && !requestType.equals("POST") && !requestType.equals("HEAD") && !requestType.equals("TRACE")){
+            System.out.println("Response:");
+            System.out.println("HTTP/1.1 400 Bad Request\r\n\r\n");
+        }
+        else {
+            for (String line : lines) {
+                if (line.startsWith("GET") || line.startsWith("POST") || line.startsWith("HEAD") || line.startsWith("TRACE")) {
+                    // Extracting the request type and requested page
+                    String[] requestLine = line.split(" ");
+                    requestType = requestLine[0];
+                    requestedPage = requestLine[1];
+                    
+                    System.out.println(requestedPage);
+                    // Check if the requested page has an image extension
+                    isImage = requestedPage.matches(".*\\.(bmp|gif|png|jpg)");
+                    
+                    System.out.println(requestHeader);
+                    //sender=fdsf&receiver=fds&subject=fds&message=fdsf
+    
+    
+                    // Extract parameters if any
+                    if (requestedPage.contains("?")) {
+                        String paramString = requestedPage.substring(requestedPage.indexOf("?") + 1);
+                        requestedPage = requestedPage.substring(0, requestedPage.indexOf("?"));
+                        String[] paramPairs = paramString.split("&");
+                        for (String pair : paramPairs) {
+                            String[] kv = pair.split("=");
+                            if (kv.length == 2) {
+                                parameters.put(kv[0], kv[1]);
+                            }
                         }
                     }
+                } else if (line.startsWith("Content-Length")) {
+                    // Extracting content length
+                    contentLength = Integer.parseInt(line.split(": ")[1].trim());
+                } else if (line.startsWith("Referer")) {
+                    // Extracting referer
+                    referer = line.split(": ")[1].trim();
+                } else if (line.startsWith("User-Agent")) {
+                    // Extracting user agent
+                    agent = line.split(": ")[1].trim();
+                }else if (line.toLowerCase().startsWith("chunked:")) {
+                    chunkedTransfer = "yes".equalsIgnoreCase(line.substring("chunked:".length()).trim());
                 }
-            } else if (line.startsWith("Content-Length")) {
-                // Extracting content length
-                contentLength = Integer.parseInt(line.split(": ")[1].trim());
-            } else if (line.startsWith("Referer")) {
-                // Extracting referer
-                referer = line.split(": ")[1].trim();
-            } else if (line.startsWith("User-Agent")) {
-                // Extracting user agent
-                agent = line.split(": ")[1].trim();
-            }else if (line.toLowerCase().startsWith("chunked:")) {
-                chunkedTransfer = "yes".equalsIgnoreCase(line.substring("chunked:".length()).trim());
             }
-        }
-
-        if(isPost){
-            String paramString = lines[lines.length - 1];
-            String[] paramPairs = paramString.split("&");
-            for (String pair : paramPairs) {
-                String[] kv = pair.split("=");
-                if (kv.length == 2) {
-                    parameters.put(kv[0], kv[1]);
+    
+            if (isPost) {
+                String paramString = lines[lines.length - 1];
+                String[] paramPairs = paramString.split("&");
+                for (String pair : paramPairs) {
+                    String[] kv = pair.split("=");
+                    if (kv.length == 2) {
+                        parameters.put(kv[0], kv[1]);
+                    }
                 }
             }
         }
