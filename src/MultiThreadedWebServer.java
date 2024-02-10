@@ -28,6 +28,7 @@ public class MultiThreadedWebServer {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Accepted connection from " + clientSocket.getInetAddress());
+                System.out.println("--------------------------------------------------");
 
                 // Submit the task to the thread pool
                 threadPool.submit(new RequestHandler(clientSocket, defaultPage, rootDirectory));

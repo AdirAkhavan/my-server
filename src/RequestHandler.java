@@ -25,7 +25,6 @@ class RequestHandler implements Runnable {
         try {
             handleRequest();
         } catch (Exception e) {
-            // e.printStackTrace();
             System.out.println("HTTP/1.1 500 Internal Server Error\r\n\r\n");
         }
     }
@@ -66,47 +65,47 @@ class RequestHandler implements Runnable {
             // System.out.println("Request: " + request);
     
             HTTPRequest httpRequest = new HTTPRequest(request);
-            System.out.println("---------------------");
-            System.out.println(httpRequest);
-            System.out.println("---------------------");
+            // DEBUG Request
+            // System.out.println("---------------------");
+            // System.out.println(httpRequest);
+            // System.out.println("---------------------");
+            // DEBUG Request
             String reqType = httpRequest.requestType;
             String response = "";
             
             if (reqType.equals("GET")) {
-                System.out.println("---------------------");
-                System.out.println("CALLING handleGetRequest");
+                System.out.println("--------------------------------------------------");
+                System.out.println("Handling GET request for resource: " + httpRequest.requestedPage);
                 response = handleGetRequest(httpRequest, out);
                 System.out.println("Response:");
                 System.out.println(response);
-                System.out.println("---------------------");
+                System.out.println("--------------------------------------------------");
             }
             else if (reqType.equals("POST")) {
-                // handlePostRequest(httpRequest);
-                System.out.println("---------------------");
-                System.out.println("CALLING handlePostRequest");
+                System.out.println("--------------------------------------------------");
+                System.out.println("Handling POST request for resource: " + httpRequest.requestedPage);
                 response = handlePostRequest(httpRequest, out);
                 System.out.println("Response:");
                 System.out.println(response);
-                System.out.println("---------------------");
+                System.out.println("--------------------------------------------------");
             }
             else if (reqType.equals("HEAD")) {
-                System.out.println("---------------------");
-                System.out.println("CALLING handleHeadRequest");
+                System.out.println("--------------------------------------------------");
+                System.out.println("Handling HEAD request for resource: " + httpRequest.requestedPage);
                 response = handleHeadRequest(httpRequest, out);
                 System.out.println("Response:");
                 System.out.println(response);
-                System.out.println("---------------------");
+                System.out.println("--------------------------------------------------");
             }
             else if (reqType.equals("TRACE")) {
-                System.out.println("---------------------");
-                System.out.println("CALLING handleTraceRequest");
+                System.out.println("--------------------------------------------------");
+                System.out.println("Handling TRACE request for resource: " + httpRequest.requestedPage);
                 response = handleTraceRequest(httpRequest, out);
                 System.out.println("Response:");
                 System.out.println(response);
-                System.out.println("---------------------");
+                System.out.println("--------------------------------------------------");
             }
             else {
-                // not implemented exception
                 response = "HTTP/1.1 \r\n\r\n";
                 out.write(response.getBytes());
             }
@@ -114,19 +113,18 @@ class RequestHandler implements Runnable {
             // Close the connection
             clientSocket.close();
             System.out.println("Socket closed.");
-            System.out.println("----------------------------------------------------------------------");
+            System.out.println("--------------------------------------------------");
         }
     }
 
     private String sendChunkedResponse(OutputStream out, String content) throws IOException {
         byte[] contentBytes = content.getBytes();
         int offset = 0;
-        int chunkSize = 1024; // You can choose an appropriate chunk size
+        int chunkSize = 1024;
         StringBuilder chunkedContentBuilder = new StringBuilder();
     
         while (offset < contentBytes.length) {
             int thisChunkSize = Math.min(chunkSize, contentBytes.length - offset);
-            // Convert chunk size to hex (as per chunked encoding specification)
             String chunkSizeHex = Integer.toHexString(thisChunkSize);
     
             // Build the chunked content for the string representation
@@ -154,33 +152,14 @@ class RequestHandler implements Runnable {
     private String handleGetRequest(HTTPRequest httpRequest, OutputStream out) throws IOException {
         // Determine the requested resource
         String requestedResource = httpRequest.requestedPage;
-
-        System.out.println("====================================================");
-        System.out.println(requestedResource);
-        System.out.println("====================================================");
-
         String responseToPrint = "";
         String response = "No response";
 
         // Handle request for the HTML file
         if (requestedResource.equals("/") || requestedResource.equals("/" + defaultPage)) {
-            // String filePath = "../default/" + defaultPage;
             String filePath = rootDirectory + defaultPage;
             File file = new File(filePath);
             String content = readFile(file);
-            // DEBUG START
-            // System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~");
-            // System.out.println(filePath);
-            // System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~");
-            // String content = "";
-            // File file = new File(filePath);
-            // try {
-            //     content = readFile(file);
-            // }
-            // catch (Exception e){
-            //     System.out.println(e.getMessage());
-            // }
-            // DEBUG END
 
             if (httpRequest.chunkedTransfer) {
                 // Prepare and send headers for chunked transfer
@@ -239,22 +218,21 @@ class RequestHandler implements Runnable {
             }
 
             responseToPrint = response;
-        }else {
+        }
+        else {
             // handling any other file
             String filePath = requestedResource;
             File file = new File(filePath);
     
             if (file.exists() && !file.isDirectory()) {
-                // If the file exists and is not a directory, read and serve it
                 byte[] content = readFileAsBytes(file);
-                String contentType = getContentType(requestedResource); // Determine content type based on file extension
+                String contentType = getContentType(requestedResource);
                 response = "HTTP/1.1 200 OK\r\n" +
                            "Content-Type: " + contentType + "\r\n" +
                            "Content-Length: " + content.length + "\r\n\r\n";
                 out.write(response.getBytes()); // Write headers
                 out.write(content); // Write file content
             } else {
-                // If the file does not exist, return a 404 Not Found response
                 response = "HTTP/1.1 404 Not Found\r\n\r\n";
                 out.write(response.getBytes());
             }
@@ -266,11 +244,6 @@ class RequestHandler implements Runnable {
     }
 
     private String handlePostRequest(HTTPRequest httpRequest, OutputStream out) throws IOException {
-        // Extract the requested page name to generate an HTML file
-        // String requestedResource = httpRequest.requestedPage;
-    
-        // Start building the HTML content
-
         StringBuilder htmlContent = new StringBuilder();
         htmlContent.append("<!DOCTYPE html>\n");
         htmlContent.append("<html>\n");
@@ -281,7 +254,6 @@ class RequestHandler implements Runnable {
         htmlContent.append("<h1>Parameters</h1>\n");
         htmlContent.append("<ul>\n");
 
-        System.out.println(httpRequest);
         // Iterate over parameters and append them to the HTML content
         for (Map.Entry<String, String> entry : httpRequest.parameters.entrySet()) {
             htmlContent.append("<li>").append(entry.getKey()).append(" = ").append(entry.getValue()).append("</li>\n");
@@ -291,32 +263,23 @@ class RequestHandler implements Runnable {
         htmlContent.append("</body>\n");
         htmlContent.append("</html>");
     
-        // Convert the StringBuilder content to String
         String responseContent = htmlContent.toString();
-    
-        // Prepare the HTTP response headers
         String responseHeaders = "HTTP/1.1 200 OK\r\n" +
                                  "Content-Type: text/html\r\n" +
                                  "Content-Length: " + responseContent.getBytes().length + "\r\n\r\n";
     
-        // Write the headers followed by the HTML content to the output stream
         out.write(responseHeaders.getBytes());
         out.write(responseContent.getBytes());
     
-        // Return the response for logging or further processing
         return responseHeaders + responseContent;
     }
     
     private String handleHeadRequest(HTTPRequest httpRequest, OutputStream out) throws IOException {
-        // Handle HEAD request similar to GET, but do not send the body
         String requestedResource = httpRequest.requestedPage;
         String responseToPrint = "";
         String response = "No response";
 
-        // Handle request for the HTML file
         if (requestedResource.equals("/") || requestedResource.equals("/" + defaultPage)) {
-            // Adjusted path for 'default' folder
-            // String filePath = "../default/" + defaultPage;
             String filePath = rootDirectory + defaultPage;
             File file = new File(filePath);
             String content = readFile(file);
@@ -324,7 +287,6 @@ class RequestHandler implements Runnable {
                               "Content-Type: text/html\r\n" +
                               "Content-Length: " + content.length() + "\r\n\r\n";
             responseToPrint = response;                              
-            // response += content;
             out.write(responseToPrint.getBytes());
         }else{
             String filePath = requestedResource;
@@ -335,7 +297,6 @@ class RequestHandler implements Runnable {
                                 "Content-Type: text/html\r\n" +
                                 "Content-Length: " + content.length() + "\r\n\r\n";
                 responseToPrint = response;                              
-                // response += content;
                 out.write(responseToPrint.getBytes());
             } else{
                 response = "HTTP/1.1 404 Not Found\r\n\r\n";
@@ -374,7 +335,6 @@ class RequestHandler implements Runnable {
         return contentBuilder.toString();    }
     
     private byte[] readFileAsBytes(File file) throws IOException {
-        // Convert file content to a byte array
         FileInputStream fis = new FileInputStream(file);
         byte[] data = new byte[(int) file.length()];
         fis.read(data);

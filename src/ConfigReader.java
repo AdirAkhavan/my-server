@@ -35,5 +35,7 @@ public class ConfigReader {
             String value = properties.getProperty(key);
             System.out.println(key + " = " + value);
         }
+
+        System.out.println("--------------------------------------------------");
     }
 }

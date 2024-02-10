@@ -19,8 +19,6 @@ public class HTTPRequest {
     public HashMap<String, String> parameters = new HashMap<String, String>();
     // flag for the chunked
     public boolean chunkedTransfer = false;
-
-
     
     public HTTPRequest(String requestHeader) {
         parseRequestHeader(requestHeader);
@@ -37,12 +35,12 @@ public class HTTPRequest {
         if (requestType.equals("PUT") || requestType.equals("DELETE")
          || requestType.equals("OPTIONS") || requestType.equals("CONNECT") || requestType.equals("PATCH")){
             requestedPage = firstLine.split(" ")[1];
-            System.out.println(requestedPage);
             System.out.println(requestHeader);
             System.out.println("Response:");
             System.out.println("HTTP/1.1 501 Not Implemented\r\n\r\n");
         }
         else if (!requestType.equals("GET") && !requestType.equals("POST") && !requestType.equals("HEAD") && !requestType.equals("TRACE")){
+            System.out.println(requestHeader);
             System.out.println("Response:");
             System.out.println("HTTP/1.1 400 Bad Request\r\n\r\n");
         }
@@ -53,14 +51,9 @@ public class HTTPRequest {
                     String[] requestLine = line.split(" ");
                     requestType = requestLine[0];
                     requestedPage = requestLine[1];
-                    
-                    System.out.println(requestedPage);
-                    // Check if the requested page has an image extension
                     isImage = requestedPage.matches(".*\\.(bmp|gif|png|jpg)");
                     
                     System.out.println(requestHeader);
-                    //sender=fdsf&receiver=fds&subject=fds&message=fdsf
-    
     
                     // Extract parameters if any
                     if (requestedPage.contains("?")) {
@@ -76,15 +69,12 @@ public class HTTPRequest {
                     }
                 } 
                 else if (line.startsWith("Content-Length")) {
-                    // Extracting content length
                     contentLength = Integer.parseInt(line.split(": ")[1].trim());
                 } 
                 else if (line.startsWith("Referer")) {
-                    // Extracting referer
                     referer = line.split(": ")[1].trim();
                 } 
                 else if (line.startsWith("User-Agent")) {
-                    // Extracting user agent
                     agent = line.split(": ")[1].trim();
                 }
                 else if (line.toLowerCase().startsWith("chunked:")) {
