@@ -12,10 +12,12 @@ public class ConfigReader {
             configFileProperties = loadProperties(fileName);
             printProperties(configFileProperties, fileName);
             
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
-            return configFileProperties;
+        
+        return configFileProperties;
     }
 
     private static Properties loadProperties(String fileName) throws IOException {
@@ -27,7 +29,7 @@ public class ConfigReader {
         return properties;
     }
 
-    private static void printProperties(Properties properties, String fileName) {
+    private static void printProperties(Properties properties, String fileName){
         System.out.println("Properties obtained from " + fileName + ":");
         for (String key : properties.stringPropertyNames()) {
             String value = properties.getProperty(key);

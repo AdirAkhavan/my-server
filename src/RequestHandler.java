@@ -7,14 +7,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.Map;
 
 class RequestHandler implements Runnable {
     private Socket clientSocket;
+    private String defaultPage;
+    private String rootDirectory;
 
-    public RequestHandler(Socket clientSocket) {
+    public RequestHandler(Socket clientSocket, String defaultPage, String rootDirectory) {
         this.clientSocket = clientSocket;
+        this.defaultPage = defaultPage;
+        this.rootDirectory = rootDirectory;
     }
 
     @Override
@@ -147,7 +150,6 @@ class RequestHandler implements Runnable {
         return chunkedContentBuilder.toString();
     }
     
-
     private String handleGetRequest(HTTPRequest httpRequest, OutputStream out) throws IOException {
         // Determine the requested resource
         String requestedResource = httpRequest.requestedPage;
@@ -155,11 +157,25 @@ class RequestHandler implements Runnable {
         String response = "No response";
 
         // Handle request for the HTML file
-        if (requestedResource.equals("/") || requestedResource.equals("/index.html")) {
-            // Adjusted path for 'default' folder
-            String filePath = "../default/index.html";
+        if (requestedResource.equals("/") || requestedResource.equals("/" + defaultPage)) {
+            // String filePath = "../default/" + defaultPage;
+            String filePath = rootDirectory + defaultPage;
             File file = new File(filePath);
             String content = readFile(file);
+            // DEBUG START
+            // System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~");
+            // System.out.println(filePath);
+            // System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~");
+            // String content = "";
+            // File file = new File(filePath);
+            // try {
+            //     content = readFile(file);
+            // }
+            // catch (Exception e){
+            //     System.out.println(e.getMessage());
+            // }
+            // DEBUG END
+
             if (httpRequest.chunkedTransfer) {
                 // Prepare and send headers for chunked transfer
                 response = "HTTP/1.1 200 OK\r\n" +
@@ -169,7 +185,8 @@ class RequestHandler implements Runnable {
                 String chunkedContent = sendChunkedResponse(out, content);
                 response += chunkedContent;
                 responseToPrint = response;
-            } else{
+            }
+            else {
                 response = "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: text/html\r\n" +
                 "Content-Length: " + content.length() + "\r\n\r\n";
@@ -181,7 +198,7 @@ class RequestHandler implements Runnable {
         // Handle request for images
         else if (requestedResource.matches(".*\\.(jpg|png|gif|bmp)")) {
             // Adjusted path for 'default' folder
-            String filePath = "../default" + requestedResource;
+            String filePath = rootDirectory + requestedResource;
             File file = new File(filePath);
             if (file.exists() && !file.isDirectory()) {
                 byte[] content = readFileAsBytes(file);
@@ -199,8 +216,22 @@ class RequestHandler implements Runnable {
             responseToPrint = response;
         }
         else if (requestedResource.equals("/favicon.ico")) {
-            String filePath = "../default/favicon.ico";
+            String filePath = rootDirectory + "favicon.ico";
+            
+            // DEBUG START
+            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~");
+            System.out.println(filePath);
+            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~");
             File file = new File(filePath);
+            String contento = "";
+            try {
+                contento = readFile(file);
+            }
+            catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+            // DEBUG END
+
             if (file.exists() && !file.isDirectory()) {
                 byte[] content = readFileAsBytes(file);
                 response = "HTTP/1.1 200 OK\r\n" +
@@ -283,9 +314,6 @@ class RequestHandler implements Runnable {
         return responseHeaders + responseContent;
     }
     
-
-
-    // TODO: Implement, current implementation is not good
     private String handleHeadRequest(HTTPRequest httpRequest, OutputStream out) throws IOException {
         // Handle HEAD request similar to GET, but do not send the body
         String requestedResource = httpRequest.requestedPage;
@@ -293,9 +321,10 @@ class RequestHandler implements Runnable {
         String response = "No response";
 
         // Handle request for the HTML file
-        if (requestedResource.equals("/") || requestedResource.equals("/index.html")) {
+        if (requestedResource.equals("/") || requestedResource.equals("/" + defaultPage)) {
             // Adjusted path for 'default' folder
-            String filePath = "../default/index.html";
+            // String filePath = "../default/" + defaultPage;
+            String filePath = rootDirectory + defaultPage;
             File file = new File(filePath);
             String content = readFile(file);
             response = "HTTP/1.1 200 OK\r\n" +
@@ -326,7 +355,6 @@ class RequestHandler implements Runnable {
         return responseToPrint;
     }
 
-    // TODO: check if current implementation is good enough
     private String handleTraceRequest(HTTPRequest httpRequest, OutputStream out) throws IOException {
         // Handle TRACE request by echoing back the request
         String response = "HTTP/1.1 200 OK\r\n" +

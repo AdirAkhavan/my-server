@@ -14,23 +14,10 @@ public class MultiThreadedWebServer {
     }
 
     public void run() {
-        String portNumberString = configFileProperties.getProperty("port");
-        int portNumber = 0;
-        
-        try {
-            portNumber = Integer.parseInt(portNumberString);
-        } catch (NumberFormatException e) {
-            System.err.println("Error parsing port number: [" + portNumberString + "]. Got following error message:" + e.getMessage());
-        }
-
-        String maxThreadsString = configFileProperties.getProperty("maxThreads");
-        int maxThreads = 0;
-        
-        try {
-            maxThreads = Integer.parseInt(maxThreadsString);
-        } catch (NumberFormatException e) {
-            System.err.println("Error parsing max thread number: [" + maxThreadsString + "]. Got following error message:" + e.getMessage());
-        }
+        int portNumber = parseIntProperty("port");
+        int maxThreads = parseIntProperty("maxThreads");
+        String defaultPage = configFileProperties.getProperty("defaultPage");
+        String rootDirectory = configFileProperties.getProperty("root");
 
         ExecutorService threadPool = Executors.newFixedThreadPool(maxThreads);
 
@@ -42,7 +29,7 @@ public class MultiThreadedWebServer {
                 System.out.println("Accepted connection from " + clientSocket.getInetAddress());
 
                 // Submit the task to the thread pool
-                threadPool.submit(new RequestHandler(clientSocket));
+                threadPool.submit(new RequestHandler(clientSocket, defaultPage, rootDirectory));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -50,5 +37,18 @@ public class MultiThreadedWebServer {
             // Shutdown the thread pool gracefully
             threadPool.shutdown();
         }
+    }
+
+    private int parseIntProperty(String propertyName){
+        String propertyAsString = this.configFileProperties.getProperty(propertyName);
+        int propertyAsNumber = 0;
+        
+        try {
+            propertyAsNumber = Integer.parseInt(propertyAsString);
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing " + propertyName + ": [" + propertyAsString + "]. Got following error message:" + e.getMessage());
+        }
+
+        return propertyAsNumber;
     }
 }

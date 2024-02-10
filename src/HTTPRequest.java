@@ -74,16 +74,20 @@ public class HTTPRequest {
                             }
                         }
                     }
-                } else if (line.startsWith("Content-Length")) {
+                } 
+                else if (line.startsWith("Content-Length")) {
                     // Extracting content length
                     contentLength = Integer.parseInt(line.split(": ")[1].trim());
-                } else if (line.startsWith("Referer")) {
+                } 
+                else if (line.startsWith("Referer")) {
                     // Extracting referer
                     referer = line.split(": ")[1].trim();
-                } else if (line.startsWith("User-Agent")) {
+                } 
+                else if (line.startsWith("User-Agent")) {
                     // Extracting user agent
                     agent = line.split(": ")[1].trim();
-                }else if (line.toLowerCase().startsWith("chunked:")) {
+                }
+                else if (line.toLowerCase().startsWith("chunked:")) {
                     chunkedTransfer = "yes".equalsIgnoreCase(line.substring("chunked:".length()).trim());
                 }
             }
