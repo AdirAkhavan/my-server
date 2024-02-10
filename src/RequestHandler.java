@@ -252,8 +252,8 @@ class RequestHandler implements Runnable {
                               "Content-Type: text/html\r\n" +
                               "Content-Length: " + content.length() + "\r\n\r\n";
             responseToPrint = response;                              
-            response += content;
-            out.write(response.getBytes());
+            // response += content;
+            out.write(responseToPrint.getBytes());
         }
         return responseToPrint;
     }

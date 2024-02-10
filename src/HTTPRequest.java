@@ -26,6 +26,8 @@ public class HTTPRequest {
         // parse request header and assign all object's fields
         // Splitting the header into lines
         String[] lines = requestHeader.split("\r\n");
+        boolean isPost = lines[0].startsWith("POST");
+
         for (String line : lines) {
             if (line.startsWith("GET") || line.startsWith("POST") || line.startsWith("HEAD") || line.startsWith("TRACE")) {
                 // Extracting the request type and requested page
@@ -38,6 +40,9 @@ public class HTTPRequest {
                 isImage = requestedPage.matches(".*\\.(bmp|gif|png|jpg)");
                 
                 System.out.println(requestHeader);
+                //sender=fdsf&receiver=fds&subject=fds&message=fdsf
+
+
                 // Extract parameters if any
                 if (requestedPage.contains("?")) {
                     String paramString = requestedPage.substring(requestedPage.indexOf("?") + 1);
@@ -59,6 +64,17 @@ public class HTTPRequest {
             } else if (line.startsWith("User-Agent")) {
                 // Extracting user agent
                 agent = line.split(": ")[1].trim();
+            }
+        }
+
+        if(isPost){
+            String paramString = lines[lines.length - 1];
+            String[] paramPairs = paramString.split("&");
+            for (String pair : paramPairs) {
+                String[] kv = pair.split("=");
+                if (kv.length == 2) {
+                    parameters.put(kv[0], kv[1]);
+                }
             }
         }
     }
