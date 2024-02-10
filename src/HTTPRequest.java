@@ -17,6 +17,10 @@ public class HTTPRequest {
     public String agent;
     // Parameters – the parameters in the request (I used java.util.HashMap<String,String> to hold the parameters).
     public HashMap<String, String> parameters = new HashMap<String, String>();
+    // flag for the chunked
+    public boolean chunkedTransfer = false;
+
+
     
     public HTTPRequest(String requestHeader) {
         parseRequestHeader(requestHeader);
@@ -64,6 +68,8 @@ public class HTTPRequest {
             } else if (line.startsWith("User-Agent")) {
                 // Extracting user agent
                 agent = line.split(": ")[1].trim();
+            }else if (line.toLowerCase().startsWith("chunked:")) {
+                chunkedTransfer = "yes".equalsIgnoreCase(line.substring("chunked:".length()).trim());
             }
         }
 

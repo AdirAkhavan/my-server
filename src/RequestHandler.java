@@ -22,7 +22,8 @@ class RequestHandler implements Runnable {
         try {
             handleRequest();
         } catch (IOException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
+            System.out.println("HTTP/1.1 500 Internal Server Error\r\n\r\n");
         }
     }
 
@@ -99,6 +100,12 @@ class RequestHandler implements Runnable {
                 System.out.println("Response:");
                 System.out.println(response);
                 System.out.println("---------------------");
+            }else{
+                // not implemented exception
+                response = "HTTP/1.1 501 Not Implemented\r\n\r\n";
+                System.out.println("Response:");
+                System.out.println(response);
+                out.write(response.getBytes());
             }
     
             // Close the connection
@@ -107,7 +114,41 @@ class RequestHandler implements Runnable {
             System.out.println("----------------------------------------------------------------------");
         }
     }
+
+    private String sendChunkedResponse(OutputStream out, String content) throws IOException {
+        byte[] contentBytes = content.getBytes();
+        int offset = 0;
+        int chunkSize = 1024; // You can choose an appropriate chunk size
+        StringBuilder chunkedContentBuilder = new StringBuilder();
     
+        while (offset < contentBytes.length) {
+            int thisChunkSize = Math.min(chunkSize, contentBytes.length - offset);
+            // Convert chunk size to hex (as per chunked encoding specification)
+            String chunkSizeHex = Integer.toHexString(thisChunkSize);
+    
+            // Build the chunked content for the string representation
+            chunkedContentBuilder.append(chunkSizeHex).append("\r\n");
+            String chunkData = new String(contentBytes, offset, thisChunkSize);
+            chunkedContentBuilder.append(chunkData).append("\r\n");
+    
+            // Send the actual chunk
+            out.write(chunkSizeHex.getBytes());
+            out.write("\r\n".getBytes());
+            out.write(contentBytes, offset, thisChunkSize);
+            out.write("\r\n".getBytes());
+    
+            offset += thisChunkSize;
+        }
+    
+        // End of content signal for both the OutputStream and the string representation
+        out.write("0\r\n\r\n".getBytes());
+        chunkedContentBuilder.append("0\r\n\r\n");
+    
+        // Return the string representation of the chunked content
+        return chunkedContentBuilder.toString();
+    }
+    
+
     private String handleGetRequest(HTTPRequest httpRequest, OutputStream out) throws IOException {
         // Determine the requested resource
         String requestedResource = httpRequest.requestedPage;
@@ -120,13 +161,23 @@ class RequestHandler implements Runnable {
             String filePath = "../default/index.html";
             File file = new File(filePath);
             String content = readFile(file);
-            response = "HTTP/1.1 200 OK\r\n" +
-                              "Content-Type: text/html\r\n" +
-                              "Content-Length: " + content.length() + "\r\n\r\n";
-                              
-            response += content;
-            responseToPrint = response;
-            out.write(response.getBytes());
+            if (httpRequest.chunkedTransfer) {
+                // Prepare and send headers for chunked transfer
+                response = "HTTP/1.1 200 OK\r\n" +
+                                 "Content-Type: text/html\r\n" +
+                                 "Transfer-Encoding: chunked\r\n\r\n"; // Notice there's no Content-Length header
+                out.write(response.getBytes());
+                String chunkedContent = sendChunkedResponse(out, content);
+                response += chunkedContent;
+                responseToPrint = response;
+            } else{
+                response = "HTTP/1.1 200 OK\r\n" +
+                "Content-Type: text/html\r\n" +
+                "Content-Length: " + content.length() + "\r\n\r\n";
+                response += content;
+                responseToPrint = response;
+                out.write(response.getBytes());
+            }
         }
         // Handle request for images
         else if (requestedResource.matches(".*\\.(jpg|png|gif|bmp)")) {
@@ -254,7 +305,25 @@ class RequestHandler implements Runnable {
             responseToPrint = response;                              
             // response += content;
             out.write(responseToPrint.getBytes());
+        }else{
+            String filePath = requestedResource;
+            File file = new File(filePath);
+            if (file.exists() && !file.isDirectory()) {
+                String content = readFile(file);
+                response = "HTTP/1.1 200 OK\r\n" +
+                                "Content-Type: text/html\r\n" +
+                                "Content-Length: " + content.length() + "\r\n\r\n";
+                responseToPrint = response;                              
+                // response += content;
+                out.write(responseToPrint.getBytes());
+            } else{
+                response = "HTTP/1.1 404 Not Found\r\n\r\n";
+                out.write(response.getBytes());
+            }
+
+            responseToPrint = response;
         }
+
         return responseToPrint;
     }
 
