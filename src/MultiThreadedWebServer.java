@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -17,7 +18,7 @@ public class MultiThreadedWebServer {
         int portNumber = parseIntProperty("port");
         int maxThreads = parseIntProperty("maxThreads");
         String defaultPage = configFileProperties.getProperty("defaultPage");
-        String rootDirectory = configFileProperties.getProperty("root");
+        String rootDirectory = changeTildeToHomeDir(configFileProperties.getProperty("root"));
 
         ExecutorService threadPool = Executors.newFixedThreadPool(maxThreads);
 
@@ -50,5 +51,12 @@ public class MultiThreadedWebServer {
         }
 
         return propertyAsNumber;
+    }
+
+    private String changeTildeToHomeDir(String pathWithTilde){
+        String homeDirectory = System.getProperty("user.home");
+        String newHomeDirectory = homeDirectory.replace(File.separator, "/");
+        
+        return pathWithTilde.replace("~", newHomeDirectory);
     }
 }

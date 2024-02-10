@@ -86,6 +86,7 @@ class RequestHandler implements Runnable {
                 System.out.println("CALLING handlePostRequest");
                 response = handlePostRequest(httpRequest, out);
                 System.out.println("Response:");
+                System.out.println(response);
                 System.out.println("---------------------");
             }
             else if (reqType.equals("HEAD")) {
@@ -153,6 +154,11 @@ class RequestHandler implements Runnable {
     private String handleGetRequest(HTTPRequest httpRequest, OutputStream out) throws IOException {
         // Determine the requested resource
         String requestedResource = httpRequest.requestedPage;
+
+        System.out.println("====================================================");
+        System.out.println(requestedResource);
+        System.out.println("====================================================");
+
         String responseToPrint = "";
         String response = "No response";
 
@@ -217,20 +223,7 @@ class RequestHandler implements Runnable {
         }
         else if (requestedResource.equals("/favicon.ico")) {
             String filePath = rootDirectory + "favicon.ico";
-            
-            // DEBUG START
-            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~");
-            System.out.println(filePath);
-            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~");
             File file = new File(filePath);
-            String contento = "";
-            try {
-                contento = readFile(file);
-            }
-            catch (Exception e){
-                System.out.println(e.getMessage());
-            }
-            // DEBUG END
 
             if (file.exists() && !file.isDirectory()) {
                 byte[] content = readFileAsBytes(file);
