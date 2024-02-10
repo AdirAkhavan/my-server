@@ -1,5 +1,4 @@
 import java.io.File;
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
@@ -33,8 +32,8 @@ public class MultiThreadedWebServer {
                 // Submit the task to the thread pool
                 threadPool.submit(new RequestHandler(clientSocket, defaultPage, rootDirectory));
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         } finally {
             // Shutdown the thread pool gracefully
             threadPool.shutdown();

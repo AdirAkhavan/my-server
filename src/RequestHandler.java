@@ -61,15 +61,7 @@ class RequestHandler implements Runnable {
             }
             
             String request = requestBuilder.toString();
-
-            // System.out.println("Request: " + request);
-    
             HTTPRequest httpRequest = new HTTPRequest(request);
-            // DEBUG Request
-            // System.out.println("---------------------");
-            // System.out.println(httpRequest);
-            // System.out.println("---------------------");
-            // DEBUG Request
             String reqType = httpRequest.requestType;
             String response = "";
             
