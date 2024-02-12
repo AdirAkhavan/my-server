@@ -347,5 +347,4 @@ class RequestHandler implements Runnable {
             return "application/octet-stream";
         }
     }
-    
 }

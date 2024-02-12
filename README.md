@@ -1,18 +1,28 @@
-## Getting Started
+## ConfigReader class:
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+A class that enables reading and printing the properties from the config file.
 
-## Folder Structure
+## HTTPRequest class:
 
-The workspace contains two folders by default, where:
+A class that represents an HTTP request, when the server receives a request, it is being converted to an HTTPRequest object.
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+## MultiThreadedWebServer class:
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+A class that oprates as the multi-threaded web server that receives all HTTP requests using a thread pool.
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+## MyServer class:
 
-## Dependency Management
+A class where a MultiThreadedWebServer instance is instantiated and then being run.
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+## RequestHandler class:
+
+A class the handles all HTTP requests that are received by the server.
+
+## Chosen design to implement our server:
+
+The chosen design promotes modularity and separation of concerns, allowing for easy maintenance and future enhancements.
+By using distinct classes, we achieve a clear and organized structure for our server implementation.
+The use of a thread pool optimizes resource utilization, enabling the server to efficiently handle multiple requests simultaneously.
+The configuration handling provided by the ConfigReader class ensures easy customization and maintenance of server settings.
+The HTTPRequest and RequestHandler classes operate in coordination to process incoming requests effectively, allowing for extensibility and adaptability to different use cases.
+Overall, this design prioritizes simplicity and maintainability for a robust multi-threaded web server implementation.
