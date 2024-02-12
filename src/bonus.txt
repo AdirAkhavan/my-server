@@ -1,0 +1,3 @@
+Bonus:
+We added the PrintingColorProvider class, a class the provides a printing color to each HTTPHandler object.
+That way, the printing will be more clear through the multi-threaded web server operations.
