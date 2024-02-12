@@ -17,7 +17,7 @@ public class HTTPRequest {
     public String agent;
     // Parameters – the parameters in the request (I used java.util.HashMap<String,String> to hold the parameters).
     public HashMap<String, String> parameters = new HashMap<String, String>();
-    // flag for the chunked
+    // chunked flag
     public boolean chunkedTransfer = false;
     
     public HTTPRequest(String requestHeader) {
@@ -32,14 +32,15 @@ public class HTTPRequest {
         String firstLine = lines[0];
         requestType = firstLine.split(" ")[0];
 
-        if (requestType.equals("PUT") || requestType.equals("DELETE")
-         || requestType.equals("OPTIONS") || requestType.equals("CONNECT") || requestType.equals("PATCH")){
+        if (requestType.equals("PUT") || requestType.equals("DELETE") || requestType.equals("OPTIONS")
+         || requestType.equals("CONNECT") || requestType.equals("PATCH")){
             requestedPage = firstLine.split(" ")[1];
             System.out.println(requestHeader);
             System.out.println("Response:");
             System.out.println("HTTP/1.1 501 Not Implemented\r\n\r\n");
         }
-        else if (!requestType.equals("GET") && !requestType.equals("POST") && !requestType.equals("HEAD") && !requestType.equals("TRACE")){
+        else if (!requestType.equals("GET") && !requestType.equals("POST")
+         && !requestType.equals("HEAD") && !requestType.equals("TRACE")){
             System.out.println(requestHeader);
             System.out.println("Response:");
             System.out.println("HTTP/1.1 400 Bad Request\r\n\r\n");

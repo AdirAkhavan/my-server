@@ -13,11 +13,13 @@ class RequestHandler implements Runnable {
     private Socket clientSocket;
     private String defaultPage;
     private String rootDirectory;
+    private String printingColor;
 
-    public RequestHandler(Socket clientSocket, String defaultPage, String rootDirectory) {
+    public RequestHandler(Socket clientSocket, String defaultPage, String rootDirectory, String handlerPrintingColor) {
         this.clientSocket = clientSocket;
         this.defaultPage = defaultPage;
         this.rootDirectory = rootDirectory;
+        this.printingColor = handlerPrintingColor;
     }
 
     @Override
@@ -25,8 +27,75 @@ class RequestHandler implements Runnable {
         try {
             handleRequest();
         } catch (Exception e) {
-            System.out.println("HTTP/1.1 500 Internal Server Error\r\n\r\n");
+            printlnWithColor("HTTP/1.1 500 Internal Server Error\r\n\r\n");
         }
+    }
+
+    private void handleRequest() throws IOException {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+             OutputStream out = clientSocket.getOutputStream()) {
+    
+            StringBuilder requestBuilder = new StringBuilder();
+            String line;
+            while ((line = in.readLine()) != null && !line.isEmpty()) {
+                requestBuilder.append(line).append("\r\n");
+            }
+            String partRequest = requestBuilder.toString();
+
+            int contentLength = getContentLength(partRequest);
+            
+            if (contentLength > 0) {
+                char[] body = new char[contentLength];
+                in.read(body, 0, contentLength);
+                requestBuilder.append(new String(body));
+            }
+            
+            String request = requestBuilder.toString();
+            HTTPRequest httpRequest = new HTTPRequest(request);
+            boolean requestTypeIsImplemented = hanldeSpecificRequest(httpRequest, out);
+
+            if (!requestTypeIsImplemented) {
+                String response = "HTTP/1.1 \r\n\r\n";
+                out.write(response.getBytes());
+            }
+    
+            // Close the connection
+            clientSocket.close();
+            printlnWithColor("Socket closed.");
+            printlnWithColor("--------------------------------------------------");
+        }
+    }
+
+    // function return value is true only if request type was one of the options in the switch case 
+    private boolean hanldeSpecificRequest(HTTPRequest httpRequest, OutputStream out) throws IOException{
+        boolean requestTypeIsImplemented = false;
+        String requestType = httpRequest.requestType;
+        String response = "";
+        printlnWithColor("--------------------------------------------------");
+        printlnWithColor("Handling " + requestType + " request for resource: " + httpRequest.requestedPage);
+
+        if (requestType.equals("GET")) {
+            response = handleGetRequest(httpRequest, out);
+            requestTypeIsImplemented = true;
+        }
+        else if (requestType.equals("POST")) {
+            response = handlePostRequest(httpRequest, out);
+            requestTypeIsImplemented = true;
+        }
+        else if (requestType.equals("HEAD")) {
+            response = handleHeadRequest(httpRequest, out);
+            requestTypeIsImplemented = true;
+        }
+        else if (requestType.equals("TRACE")) {
+            response = handleTraceRequest(httpRequest, out);
+            requestTypeIsImplemented = true;
+        }
+
+        printlnWithColor("Response:");
+        printlnWithColor(response);
+        printlnWithColor("--------------------------------------------------");
+
+        return requestTypeIsImplemented;
     }
 
     private int getContentLength(String request) {
@@ -37,76 +106,6 @@ class RequestHandler implements Runnable {
             }
         }
         return 0; // Returns 0 if the Content-Length header isn't found
-    }
-
-    private void handleRequest() throws IOException {
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-             OutputStream out = clientSocket.getOutputStream()) {
-    
-            // Read the request (for simplicity, assuming a single-line request)
-            // in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            StringBuilder requestBuilder = new StringBuilder();
-            String line;
-            while ((line = in.readLine()) != null && !line.isEmpty()) {
-                requestBuilder.append(line).append("\r\n");
-            }
-            String part_request = requestBuilder.toString();
-
-            int contentLength = getContentLength(part_request); // You need to implement this method
-            
-            if (contentLength > 0) {
-                char[] body = new char[contentLength];
-                in.read(body, 0, contentLength);
-                requestBuilder.append(new String(body));
-            }
-            
-            String request = requestBuilder.toString();
-            HTTPRequest httpRequest = new HTTPRequest(request);
-            String reqType = httpRequest.requestType;
-            String response = "";
-            
-            if (reqType.equals("GET")) {
-                System.out.println("--------------------------------------------------");
-                System.out.println("Handling GET request for resource: " + httpRequest.requestedPage);
-                response = handleGetRequest(httpRequest, out);
-                System.out.println("Response:");
-                System.out.println(response);
-                System.out.println("--------------------------------------------------");
-            }
-            else if (reqType.equals("POST")) {
-                System.out.println("--------------------------------------------------");
-                System.out.println("Handling POST request for resource: " + httpRequest.requestedPage);
-                response = handlePostRequest(httpRequest, out);
-                System.out.println("Response:");
-                System.out.println(response);
-                System.out.println("--------------------------------------------------");
-            }
-            else if (reqType.equals("HEAD")) {
-                System.out.println("--------------------------------------------------");
-                System.out.println("Handling HEAD request for resource: " + httpRequest.requestedPage);
-                response = handleHeadRequest(httpRequest, out);
-                System.out.println("Response:");
-                System.out.println(response);
-                System.out.println("--------------------------------------------------");
-            }
-            else if (reqType.equals("TRACE")) {
-                System.out.println("--------------------------------------------------");
-                System.out.println("Handling TRACE request for resource: " + httpRequest.requestedPage);
-                response = handleTraceRequest(httpRequest, out);
-                System.out.println("Response:");
-                System.out.println(response);
-                System.out.println("--------------------------------------------------");
-            }
-            else {
-                response = "HTTP/1.1 \r\n\r\n";
-                out.write(response.getBytes());
-            }
-    
-            // Close the connection
-            clientSocket.close();
-            System.out.println("Socket closed.");
-            System.out.println("--------------------------------------------------");
-        }
     }
 
     private String sendChunkedResponse(OutputStream out, String content) throws IOException {
@@ -346,5 +345,9 @@ class RequestHandler implements Runnable {
         } else {
             return "application/octet-stream";
         }
+    }
+
+    private void printlnWithColor(String message){
+        System.out.println(printingColor + message);
     }
 }

@@ -18,6 +18,11 @@ A class where a MultiThreadedWebServer instance is instantiated and then being r
 
 A class the handles all HTTP requests that are received by the server.
 
+## PrintingColorProvider class:
+
+Bonus class: A class the provides a printing color to each HTTPHandler object so the printing will be more clear through the multi-threaded web server operations.
+Color printing is only used for the requests handling.
+
 ## Chosen design to implement our server:
 
 The chosen design promotes modularity and separation of concerns, allowing for easy maintenance and future enhancements.
