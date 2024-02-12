@@ -35,13 +35,13 @@ public class HTTPRequest {
         if (requestType.equals("PUT") || requestType.equals("DELETE") || requestType.equals("OPTIONS")
          || requestType.equals("CONNECT") || requestType.equals("PATCH")){
             requestedPage = firstLine.split(" ")[1];
-            System.out.println(requestHeader);
+            System.out.println(PrintingColorProvider.WHITE + requestHeader);
             System.out.println("Response:");
             System.out.println("HTTP/1.1 501 Not Implemented\r\n\r\n");
         }
         else if (!requestType.equals("GET") && !requestType.equals("POST")
          && !requestType.equals("HEAD") && !requestType.equals("TRACE")){
-            System.out.println(requestHeader);
+            System.out.println(PrintingColorProvider.WHITE + requestHeader);
             System.out.println("Response:");
             System.out.println("HTTP/1.1 400 Bad Request\r\n\r\n");
         }
@@ -54,7 +54,7 @@ public class HTTPRequest {
                     requestedPage = requestLine[1];
                     isImage = requestedPage.matches(".*\\.(bmp|gif|png|jpg)");
                     
-                    System.out.println(requestHeader);
+                    System.out.println(PrintingColorProvider.WHITE +requestHeader);
     
                     // Extract parameters if any
                     if (requestedPage.contains("?")) {

@@ -8,7 +8,6 @@ import java.util.concurrent.Executors;
 public class MultiThreadedWebServer {
 
     public Properties configFileProperties;
-    private static final Object lock = new Object();
 
     public MultiThreadedWebServer(String configFile) {
         this.configFileProperties = ConfigReader.getConfigProperties(configFile);
@@ -28,12 +27,8 @@ public class MultiThreadedWebServer {
             while (true) {
                 String printingColor = PrintingColorProvider.provideNextPrintingColor();
                 Socket clientSocket = serverSocket.accept();
-                synchronized(lock){
-                    System.out.println(PrintingColorProvider.WHITE);
-                    System.out.println("Accepted connection from " + clientSocket.getInetAddress());
-                    System.out.println("--------------------------------------------------");
-        
-                };
+                System.out.println(PrintingColorProvider.WHITE + "Accepted connection from " + clientSocket.getInetAddress());
+                System.out.println("--------------------------------------------------");
                 
                 // Submit the task to the thread pool
                 threadPool.submit(new RequestHandler(clientSocket, defaultPage, rootDirectory, printingColor));
