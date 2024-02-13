@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Map;
+import java.util.Stack;
 
 class RequestHandler implements Runnable {
     private Socket clientSocket;
@@ -28,6 +29,29 @@ class RequestHandler implements Runnable {
             handleRequest();
         } catch (Exception e) {
             printlnWithColor("HTTP/1.1 500 Internal Server Error\r\n\r\n");
+        }
+    }
+
+    public static String simplifyPath(String path) {
+        String[] components = path.split("/");
+        Stack<String> stack = new Stack<>();
+        
+        for (String component : components) {
+            if (!component.equals("..") && !component.isEmpty()) {
+                stack.push(component);
+            }
+        }
+
+        StringBuilder simplifiedPath = new StringBuilder();
+        for (String dir : stack) {
+            simplifiedPath.append("/").append(dir);
+        }
+        
+        if (simplifiedPath.length() == 0){
+            return "/";
+        }
+        else{
+            return simplifiedPath.toString();
         }
     }
 
@@ -146,6 +170,8 @@ class RequestHandler implements Runnable {
         String responseToPrint = "";
         String response = "No response";
 
+        requestedResource = simplifyPath(requestedResource);
+
         // Handle request for the HTML file
         if (requestedResource.equals("/") || requestedResource.equals("/" + defaultPage)) {
             String filePath = rootDirectory + defaultPage;
@@ -212,8 +238,10 @@ class RequestHandler implements Runnable {
         }
         else {
             // handling any other file
-            String filePath = requestedResource;
-            File file = new File(filePath);
+            String filePath = rootDirectory + requestedResource;
+            String simpleFilePath = simplifyPath(filePath);
+
+            File file = new File(simpleFilePath);
     
             if (file.exists() && !file.isDirectory()) {
                 byte[] content = readFileAsBytes(file);
@@ -280,7 +308,7 @@ class RequestHandler implements Runnable {
             responseToPrint = response;                              
             out.write(responseToPrint.getBytes());
         }else{
-            String filePath = requestedResource;
+            String filePath = rootDirectory + requestedResource;
             File file = new File(filePath);
             if (file.exists() && !file.isDirectory()) {
                 String content = readFile(file);
