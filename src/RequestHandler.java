@@ -90,8 +90,7 @@ class RequestHandler implements Runnable {
     }
 
     // function return value is true only if request type was one of the options in the switch case 
-    private boolean hanldeSpecificRequest(HTTPRequest httpRequest, OutputStream out) throws IOException{
-        boolean requestTypeIsImplemented = false;
+    private void hanldeSpecificRequest(HTTPRequest httpRequest, OutputStream out) throws IOException{
         String requestType = httpRequest.requestType;
         String response = "";
         printlnWithColor("--------------------------------------------------");
@@ -99,26 +98,20 @@ class RequestHandler implements Runnable {
 
         if (requestType.equals("GET")) {
             response = handleGetRequest(httpRequest, out);
-            requestTypeIsImplemented = true;
         }
         else if (requestType.equals("POST")) {
             response = handlePostRequest(httpRequest, out);
-            requestTypeIsImplemented = true;
         }
         else if (requestType.equals("HEAD")) {
             response = handleHeadRequest(httpRequest, out);
-            requestTypeIsImplemented = true;
         }
         else if (requestType.equals("TRACE")) {
             response = handleTraceRequest(httpRequest, out);
-            requestTypeIsImplemented = true;
         }
 
         printlnWithColor("Response:");
         printlnWithColor(response);
         printlnWithColor("--------------------------------------------------");
-
-        return requestTypeIsImplemented;
     }
 
     private int getContentLength(String request) {
