@@ -70,9 +70,14 @@ class RequestHandler implements Runnable {
             
             String request = requestBuilder.toString();
             HTTPRequest httpRequest = new HTTPRequest(request);
-            boolean requestTypeIsImplemented = hanldeSpecificRequest(httpRequest, out);
-
-            if (!requestTypeIsImplemented) {
+            String requestType = httpRequest.requestType;
+            boolean requestTypeIsImplemented = requestType.equals("GET") || requestType.equals("POST") ||
+            requestType.equals("HEAD") || requestType.equals("TRACE");
+            
+            if (requestTypeIsImplemented) {
+                hanldeSpecificRequest(httpRequest, out);
+            }
+            else {
                 String response = "HTTP/1.1 \r\n\r\n";
                 out.write(response.getBytes());
             }
