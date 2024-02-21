@@ -9,6 +9,25 @@ The configuration handling provided by the ConfigReader class ensures easy custo
 The HTTPRequest and RequestHandler classes operate in coordination to process incoming requests effectively, allowing for extensibility and adaptability to different use cases.
 Overall, this design prioritizes simplicity and maintainability for a robust multi-threaded web server implementation.
 
+## Running the Server
+
+To run the server, follow these steps:
+
+Step 1: Navigate to the Source Directory.
+Open your terminal and navigate to the source directory of the project using the cd command:
+
+cd path/to/the/project/src
+
+Step 2: Compile Java Files.
+Compile the Java files using the javac command:
+
+javac \*.java
+
+Step 3: Launch the Server.
+Execute the following command to start the server:
+
+java MyServer
+
 ## ConfigReader class:
 
 A class that enables reading and printing the properties from the config file.
