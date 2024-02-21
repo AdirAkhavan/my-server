@@ -1,13 +1,9 @@
 # Multi-Threaded Web Server:
 
-## Chosen design to implement our server:
-
-The chosen design promotes modularity and separation of concerns, allowing for easy maintenance and future enhancements.
-By using distinct classes, we achieve a clear and organized structure for our server implementation.
-The use of a thread pool optimizes resource utilization, enabling the server to efficiently handle multiple requests simultaneously.
-The configuration handling provided by the ConfigReader class ensures easy customization and maintenance of server settings.
-The HTTPRequest and RequestHandler classes operate in coordination to process incoming requests effectively, allowing for extensibility and adaptability to different use cases.
-Overall, this design prioritizes simplicity and maintainability for a robust multi-threaded web server implementation.
+This project focuses on the development of a multi-threaded web server using TCP, with the primary goal of handling concurrent connections efficiently.  
+The server is configured using a config.ini file, and handles HTTP requests, supporting GET, POST, HEAD, and TRACE methods.  
+In response, it delivers HTTP status codes such as 200 OK, 404 Not Found, 501 Not Implemented, 400 Bad Request, and 500 Internal Server Error.  
+The implementation is designed to prevent crashes, ensuring stability regardless of the input the server receives.
 
 ## Running the Server
 
@@ -27,6 +23,15 @@ Step 3: Launch the Server.
 Execute the following command to start the server:
 
 java MyServer
+
+## Chosen design to implement our server:
+
+The chosen design promotes modularity and separation of concerns, allowing for easy maintenance and future enhancements.
+By using distinct classes, we achieve a clear and organized structure for our server implementation.
+The use of a thread pool optimizes resource utilization, enabling the server to efficiently handle multiple requests simultaneously.
+The configuration handling provided by the ConfigReader class ensures easy customization and maintenance of server settings.
+The HTTPRequest and RequestHandler classes operate in coordination to process incoming requests effectively, allowing for extensibility and adaptability to different use cases.
+Overall, this design prioritizes simplicity and maintainability for a robust multi-threaded web server implementation.
 
 ## ConfigReader class:
 
