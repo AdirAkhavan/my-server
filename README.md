@@ -13,17 +13,17 @@ Overall, this design prioritizes simplicity and maintainability for a robust mul
 
 To run the server, follow these steps:
 
-Step 1: Navigate to the Source Directory.
+Step 1: Navigate to the Source Directory.  
 Open your terminal and navigate to the source directory of the project using the cd command:
 
 cd path/to/the/project/src
 
-Step 2: Compile Java Files.
+Step 2: Compile Java Files.  
 Compile the Java files using the javac command:
 
 javac \*.java
 
-Step 3: Launch the Server.
+Step 3: Launch the Server.  
 Execute the following command to start the server:
 
 java MyServer
